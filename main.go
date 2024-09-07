@@ -24,8 +24,26 @@ func NewCat() Animal {
 	}
 }
 
+func NewCat1() Cat {
+	return Cat{
+		name: "neko 2",
+	}
+}
+
+func NewCat2() Cat {
+	return Cat{
+		name: "neko 2",
+	}
+}
+
 type Dog struct {
 	name string
+}
+
+func NewDog() Dog {
+	return Dog{
+		name: "inu",
+	}
 }
 
 func (c Dog) GetName() string {
@@ -36,7 +54,7 @@ func Describe(str string) {
 	log.Println(str)
 }
 
-func main() {
+func SimpleDemo() {
 	c := dig.New()
 
 	err := c.Provide(func(animal Animal) string {
@@ -51,7 +69,42 @@ func main() {
 		panic(err)
 	}
 
+	// cannot provide function "main".NewCat (/home/user/dig-test/main.go:21): cannot provide main.Animal from [0]: already provided by "main".NewCat (/home/user/dig-test/main.go:21)
+	// if err := c.Provide(NewCat); err != nil {
+	// 	panic(err)
+	// }
+
 	if err := c.Invoke(Describe); err != nil {
 		panic(err)
 	}
+}
+
+type DogAndCat struct {
+	dig.In
+
+	Dog Dog
+	Cat Cat
+}
+
+func ParameterGroupDemo() {
+	c := dig.New()
+	if err := c.Provide(NewCat1); err != nil {
+		panic(err)
+	}
+	if err := c.Provide(NewDog); err != nil {
+		panic(err)
+	}
+
+	err := c.Invoke(func(dogAndCat DogAndCat) {
+		log.Println(dogAndCat.Cat.GetName())
+		log.Println(dogAndCat.Dog.GetName())
+	})
+	if err != nil {
+		panic(err)
+	}
+}
+
+func main() {
+	SimpleDemo()
+	ParameterGroupDemo()
 }
