@@ -55,6 +55,7 @@ func Describe(str string) {
 }
 
 func SimpleDemo() {
+	log.Println("SimpleDemo")
 	c := dig.New()
 
 	err := c.Provide(func(animal Animal) string {
@@ -86,7 +87,16 @@ type DogAndCat struct {
 	Cat Cat
 }
 
-func ParameterGroupDemo() {
+type DogAndOptionalCat struct {
+	dig.In
+
+	Dog         *Dog
+	OptionalCat *Cat `oprional:"true"`
+}
+
+// https://pkg.go.dev/go.uber.org/dig#hdr-Parameter_Objects
+func ParameterObjectDemo() {
+	log.Println("ParameterObjectDemo")
 	c := dig.New()
 	if err := c.Provide(NewCat1); err != nil {
 		panic(err)
@@ -104,7 +114,27 @@ func ParameterGroupDemo() {
 	}
 }
 
+func OptionalDemo() {
+	log.Println("ParameterObjectDemo")
+	c := dig.New()
+	if err := c.Provide(NewCat1); err != nil {
+		panic(err)
+	}
+	if err := c.Provide(NewDog); err != nil {
+		panic(err)
+	}
+
+	err := c.Invoke(func(dogAndCat DogAndOptionalCat) {
+		log.Println(dogAndCat.OptionalCat.GetName())
+		log.Println(dogAndCat.Dog.GetName())
+	})
+	if err != nil {
+		panic(err)
+	}
+}
+
 func main() {
 	SimpleDemo()
-	ParameterGroupDemo()
+	ParameterObjectDemo()
+	OptionalDemo()
 }
